@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<install version="1.5" type="plugin" group="vmpayment" method="upgrade">
+    <name>Pagseguro</name>
+    <creationDate>Março 2012</creationDate>
+    <author>Fábio Paiva/Luiz F. Weber</author>
+    <authorUrl>http://www.paiva.info - http://weber.eti.br</authorUrl>
+    <copyright>Copyright (C) 2011-2011. All rights reserved.</copyright>
+    <license>http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL</license>
+    <version>1.3</version>
+    <description>
+	Plugin de pagamento Pagseguro
+	&lt;div style=&quot;background:#E5F5FF;border:1px solid #99D6FF;padding:10px;margin:10px; -box-shadow: inset 0px 0px 10px #fff, 0px 0px 5px #ccc; -webkit-box-shadow: inset 0px 0px 10px #fff, 0px 0px 5px #ccc; -moz-box-shadow: inset 0px 0px 10px #fff, 0px 0px 5px #ccc;&quot;&gt;
+		&lt;h1&gt;Plugin de pagamento Pagseguro para Virtuemart 2.0.&lt;/h1&gt;
+		&lt;div&gt;&lt;em&gt;Passo 1&lt;/em&gt; - Habilite o plugin aqui &lt;a href=&quot;index.php?option=com_plugins&amp;view=plugins&amp;filter_search=pagseguro&quot;&gt;Administrar Plugins&lt;/a&gt;&lt;/div&gt;
+		&lt;div&gt;&lt;em&gt;Passo 2&lt;/em&gt; - Instale Plugin por esta tela &lt;a href=&quot;index.php?option=com_virtuemart&amp;view=paymentmethod&quot;&gt;Métodos de pagamento&lt;/a&gt;&lt;/div&gt;
+		&lt;div&gt;&lt;em&gt;Passo 2.1&lt;/em&gt; - &lt;b&gt;Clique em Novo Método de Pagamento&lt;/b&gt; e preencha as informações:&lt;/div&gt;
+		&lt;div&gt;* Nome do Pagamento: &lt;b&gt;Pagseguro&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Publicado: &lt;b&gt;Sim&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Descrição do pagamento: &lt;b&gt;Pague com Cartão de Crédito, Transferência e Boleto Via Pagseguro&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Método de pagamento: &lt;b&gt;Pagseguro&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Grupo de Compradores: &lt;b&gt;-default-&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;&lt;em&gt;Passo 2.2&lt;/em&gt; - &lt;b&gt;Clique em Salvar&lt;/b&gt;.&lt;/div&gt;
+		&lt;div&gt;&lt;em&gt;Passo 3&lt;/em&gt; - Na &lt;b&gt;aba configurações&lt;/b&gt;, preencha os dados:&lt;/div&gt;
+		&lt;div&gt;* Logotipos: &lt;b&gt;&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Email Pagseguro: &lt;b&gt;Email da conta no Pagseguro&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Token: &lt;b&gt;Página inicial &gt; Ferramentas &gt; Preferências &gt; Retorno automatico dos dados ( https://pagseguro.uol.com.br/preferences/automaticReturn.jhtml#rmcl ) &lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Tipo de Frete Padrão: &lt;b&gt;( caso seja passado frete, esse parâmetro é desconsiderado)&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;&lt;em&gt;Status de Pedidos:&lt;/em&gt;&lt;/div&gt;
+		&lt;div&gt;* Completo: &lt;b&gt;Status transação Enviada&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Aprovado: &lt;b&gt;Status do Pedido quando Aprovada a transação&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Em Análise: &lt;b&gt;Status do pedido em análise&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Cancelado: &lt;b&gt;Status do Pedido quando Cancelada a transação&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Aguardando Pagto: &lt;b&gt;Status Pendente do Pedido&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Paga: &lt;b&gt;Status Pago do Valor da Transação&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Disponível: &lt;b&gt;Status Disponível do Valor da Transação&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Devolvida: &lt;b&gt;Status Devolvido do Valor da Transação&lt;/b&gt;&lt;/div&gt;
+		&lt;div&gt;* Em disputa: &lt;b&gt;Status em disputa do Valor da Transação&lt;/b&gt;&lt;/div&gt;
+
+	&lt;/div&gt;
+
+	
+	&lt;div&gt;
+	&lt;a target='_blank' href='https://pagseguro.uol.com.br/security/webpagamentos/webdoacao.aspx?email_cobranca=fabio@paiva.info&amp;moeda=BRL'&gt;&lt;img src='https://pagseguro.uol.com.br/Security/Imagens/FacaSuaDoacao.gif' /&gt;&lt;/a&gt;&lt;hr/&gt;Licença: &lt;a href='http://www.gnu.org/licenses/gpl-3.0.html'&gt;GNU/GPL v3&lt;/a&gt; - Desenvolvido por Fábio Paiva - &lt;a href='http://paiva.info'&gt;Paiva Info&lt;/a&gt; | Luiz Weber - &lt;a href='http://weber.eti.br'&gt;Weber TI&lt;/a&gt; | &lt;a href='http://webgenium.com.br'&gt;Webgenium System&lt;/a&gt;
+	&lt;/div&gt;
+	
+	</description>
+    <files>
+        <filename plugin="pagseguro">pagseguro.php</filename>
+        <folder>imagens</folder>
+    </files>
+    <params addpath="/administrator/components/com_virtuemart/elements">
+        <param type="vmjpluginwarning" />
+        <param	name="payment_logos" type="vmfiles" label="VMPAYMENT_STANDARD_LOGOS"
+		description="VMPAYMENT_STANDARD_LOGOS_DESC"
+		directory="/images/stories/virtuemart/payment"
+		default="default" hide_default="1" hide_none="1"
+		stripext="0"   exclude="^_" />	        
+
+        <param name="email_cobranca" type="text" size="20"  label="Email pagseguro" description="Email usado para efetuar login no Pagseguro" />        
+        <param type="spacer" default="&lt;b&gt;Configurações de retorno do Pagseguro&lt;/b&gt;: Não se esqueça de apontar a URL de retorno nas configurações do Pagseguro para: &lt;br/&gt; &lt;em&gt;http://seusite/index.php?option=com_virtuemart&amp;view=pluginresponse&amp;task=pluginnotification&lt;/em&gt;" label="Retorno" />
+        <param name="token" type="text"  label="Token" description="Token gerado para sua conta no pagseguro" size="60" />
+        <param name="tipo_frete" type="list" default="1" label="Tipo de frete padrão">
+            <option value="1">Sedex</option>
+            <option value="0">Encomenda PAC</option>
+        </param>
+        <param name="segundos_redirecionar" type="text"  label="Segundos para Redirecionar Automaticamente" description="Segundos para Redirecionar automaticamente para o pagamento" size="2" default="5" />		
+		
+        <param type="spacer" default="Status postado pelo Pagseguro" />
+        <param name="status_completo" type="vmorderstate" default="S"  label="Completo" description="Status completo dentro do seu Virtuemart" /><!-- verificar se este status realmente existe -->
+        <param name="status_aprovado" type="vmorderstate" default="C" label="Aprovado" description="Status aprovado dentro do seu Virtuemart" /><!-- verificar se este status realmente existe -->
+        <param name="status_analise" type="vmorderstate" default="E"  label="Em Análise" description="Status Em Análise dentro do seu Virtuemart" />
+        <param name="status_cancelado" type="vmorderstate" default="X" label="Cancelado" description="Status Cancelado dentro do seu Virtuemart" />
+        <param name="status_aguardando" type="vmorderstate" default="A" label="Aguardando Pagto" description="Status Aguardando Pagto dentro do seu Virtuemart" />
+        <param name="status_paga" type="vmorderstate" default="C" label="Paga" description="Status Paga dentro do seu Virtuemart" />
+        <param name="status_disponivel" type="vmorderstate" default="S" label="Disponível" description="Status Disponível dentro do seu Virtuemart" />
+        <param name="status_devolvida" type="vmorderstate" default="R" label="Devolvida" description="Status Devolvida dentro do seu Virtuemart" />
+        <param name="status_disputa" type="vmorderstate" default="D" label="Em disputa" description="Status Devolvida dentro do seu Virtuemart" />
+        
+	<param type="spacer" default="&lt;br/&gt;&lt;a target='_blank' href='https://pagseguro.uol.com.br/security/webpagamentos/webdoacao.aspx?email_cobranca=fabio@paiva.info&amp;moeda=BRL'&gt;&lt;img src='https://pagseguro.uol.com.br/Security/Imagens/FacaSuaDoacao.gif' /&gt;&lt;/a&gt;&lt;hr/&gt;Licença: &lt;a href='http://www.gnu.org/licenses/gpl-3.0.html'&gt;GNU/GPL v3&lt;/a&gt; - Desenvolvido por Fábio Paiva - &lt;a href='http://paiva.info'&gt;Paiva Info&lt;/a&gt; | Luiz Weber - &lt;a href='http://weber.eti.br'&gt;Weber TI&lt;/a&gt; | &lt;a href='http://webgenium.com.br'&gt;Webgenium System&lt;/a&gt;" />
+    </params>
+</install>

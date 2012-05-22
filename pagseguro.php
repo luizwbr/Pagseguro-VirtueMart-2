@@ -227,8 +227,8 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 
         JFactory::getApplication()->enqueueMessage(utf8_encode("Seu pedido foi realizado com sucesso. Você será direcionado para o site do Pagseguro, onde efetuará o pagamento da sua compra."));
 
-		//return $this->processConfirmedOrderPaymentResponse(1, $cart, $order, $html, $dbValues['payment_name'], $novo_status);
-		return $this->processConfirmedOrderPaymentResponse(2, $cart, $order, $html, $dbValues['payment_name'], '');
+		$novo_status = $method->status_aguardando;
+		return $this->processConfirmedOrderPaymentResponse(1, $cart, $order, $html, $dbValues['payment_name'], $novo_status);
 
     }
 

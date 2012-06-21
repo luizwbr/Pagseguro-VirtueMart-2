@@ -49,7 +49,13 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
             'status_disponivel'=> array('', 'char'),
             'status_devolvida'=> array('', 'char'),
             'status_disputa'=> array('', 'char'),
-            'segundos_redirecionar'=> array('', 'string')
+            'segundos_redirecionar'=> array('', 'string'),
+			'countries' => array('', 'char'),
+			'min_amount' => array('', 'int'),
+			'max_amount' => array('', 'int'),
+			'cost_per_transaction' => array('', 'int'),
+			'cost_percent_total' => array('', 'int'),
+			'tax_id' => array(0, 'int'),
         );
 
         $this->setConfigParameterable($this->_configTableFieldName, $varsToPush);

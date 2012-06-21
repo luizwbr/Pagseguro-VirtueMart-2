@@ -76,6 +76,14 @@
         <param name="status_devolvida" type="vmorderstate" default="R" label="Devolvida" description="Status Devolvida dentro do seu Virtuemart" />
         <param name="status_disputa" type="vmorderstate" default="D" label="Em disputa" description="Status Devolvida dentro do seu Virtuemart" />
         
+		<param type="spacer" default="Extras" />		
+		<param name="countries" type="vmcountries"  scope="com_virtuemart" default="" label="Países" description="Países para validar este pagamento"/>
+		<param name="min_amount" type="text"  label="Mínimo da Compra" description="Valor mínimo da compra" />
+		<param name="max_amount" type="text"  label="Máximo da Compra" description="Valor Máximo da compra" />
+		<param name="cost_per_transaction" type="text"  label="Custo por Transação" description="Custo total por transação" />
+		<param name="cost_percent_total" type="text"  label="Custo percentual total" description="Custo percentual total pela venda" />
+		<param name="tax_id" type="vmtaxes" scope="com_virtuemart"  label="Tarifa/Imposto" description="Imposto ou tarifa aplicada" />
+		
 	<param type="spacer" default="&lt;br/&gt;&lt;a target='_blank' href='https://pagseguro.uol.com.br/security/webpagamentos/webdoacao.aspx?email_cobranca=fabio@paiva.info&amp;moeda=BRL'&gt;&lt;img src='https://pagseguro.uol.com.br/Security/Imagens/FacaSuaDoacao.gif' /&gt;&lt;/a&gt;&lt;hr/&gt;Licença: &lt;a href='http://www.gnu.org/licenses/gpl-3.0.html'&gt;GNU/GPL v3&lt;/a&gt; - Desenvolvido por Fábio Paiva - &lt;a href='http://paiva.info'&gt;Paiva Info&lt;/a&gt; | Luiz Weber - &lt;a href='http://weber.eti.br'&gt;Weber TI&lt;/a&gt; | &lt;a href='http://webgenium.com.br'&gt;Webgenium System&lt;/a&gt;" />
     </params>
 </install>

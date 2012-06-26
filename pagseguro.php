@@ -175,7 +175,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 
         //buscar forma de envio
 
-        $q = 'SELECT `shipment_element` FROM `#__virtuemart_shipmentmethods` WHERE `virtuemart_shipmentmethod_id`="' . $order["details"]["ST"]->virtuemart_shipmentmethod_id . '" ';
+        $q = 'SELECT `shipment_element` FROM `#__virtuemart_shipmentmethods` WHERE `virtuemart_shipmentmethod_id`="' . $order["details"]["BT"]->virtuemart_shipmentmethod_id . '" ';
         $db->setQuery($q);
         $envio = $db->loadResult();
 
@@ -191,23 +191,23 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
                     <input type="hidden" name="moeda" value="BRL"  />
                     <input type="hidden" name="tipo" value="CP"  />
                     <input type="hidden" name="encoding" value="utf-8"  />
-                    <input type="hidden" name="ref_transacao" value="' . ($order["details"]["ST"]->order_number!=''?$order["details"]["ST"]->order_number:$order["details"]["BT"]->order_number) . '"  />
+                    <input type="hidden" name="ref_transacao" value="' . ($order["details"]["BT"]->order_number!=''?$order["details"]["BT"]->order_number:$order["details"]["BT"]->order_number) . '"  />
                     <input type="hidden" name="tipo_frete" value="' . $tipo_frete . '"  />';
 
-        $html .= '<input type="hidden" name="cliente_nome" value="' . ($order["details"]["ST"]->first_name!=''?$order["details"]["ST"]->first_name:$order["details"]["BT"]->first_name) . ' ' . ($order["details"]["ST"]->last_name!=''?$order["details"]["ST"]->last_name:$order["details"]["BT"]->last_name) . '"  />
-		<input type="hidden" name="cliente_cep" value="' . ($order["details"]["ST"]->zip!=''?$order["details"]["ST"]->zip:$order["details"]["BT"]->zip) . '"  />
-		<input type="hidden" name="cliente_end" value="' . ($order["details"]["ST"]->address_1!=''?$order["details"]["ST"]->address_1:$order["details"]["BT"]->address_1) . ' ' . ($order["details"]["ST"]->address_2!=''?$order["details"]["ST"]->address_2:$order["details"]["BT"]->address_2) . '"  />
-		<input type="hidden" name="cliente_num" value=""  />
-		<input type="hidden" name="cliente_compl" value=""  />
-		<input type="hidden" name="cliente_cidade" value="' . ($order["details"]["ST"]->city!=''?$order["details"]["ST"]->city:$order["details"]["BT"]->city) . '"  />';	
-		$cod_estado = (!empty($order["details"]["ST"]->virtuemart_state_id)?$order["details"]["ST"]->virtuemart_state_id:$order["details"]["BT"]->virtuemart_state_id);		
+        $html .= '<input type="hidden" name="cliente_nome" value="' . ($order["details"]["BT"]->first_name!=''?$order["details"]["BT"]->first_name:$order["details"]["BT"]->first_name) . ' ' . ($order["details"]["BT"]->last_name!=''?$order["details"]["BT"]->last_name:$order["details"]["BT"]->last_name) . '"  />
+		<input type="hidden" name="cliente_cep" value="' . ($order["details"]["BT"]->zip!=''?$order["details"]["BT"]->zip:$order["details"]["BT"]->zip) . '"  />
+		<input type="hidden" name="cliente_end" value="' . ($order["details"]["BT"]->address_1!=''?$order["details"]["BT"]->address_1:$order["details"]["BT"]->address_1) . ' "  />
+		<input type="hidden" name="cliente_num" value="'. ($order["details"]["BT"]->numero!=''?$order["details"]["BT"]->numero:$order["details"]["BT"]->numero)  .'"  />
+		<input type="hidden" name="cliente_compl" value="'.($order["details"]["BT"]->address_2!=''?$order["details"]["BT"]->address_2:$order["details"]["BT"]->address_2) .'"  />
+		<input type="hidden" name="cliente_cidade" value="' . ($order["details"]["BT"]->city!=''?$order["details"]["BT"]->city:$order["details"]["BT"]->city) . '"  />';	
+		$cod_estado = (!empty($order["details"]["BT"]->virtuemart_state_id)?$order["details"]["BT"]->virtuemart_state_id:$order["details"]["BT"]->virtuemart_state_id);		
 		$estado = ShopFunctions::getStateByID($cod_estado, "state_2_code");				
 		$html.='
 		<input type="hidden" name="cliente_uf" value="' . $estado . '"  />
 		<input type="hidden" name="cliente_pais" value="BRA"  />
-		<input type="hidden" name="cliente_ddd" value=""  />
-		<input type="hidden" name="cliente_tel" value="' . ($order["details"]["ST"]->phone_1!=''?$order["details"]["ST"]->phone_1:$order["details"]["BT"]->phone_1) . '"  />
-		<input type="hidden" name="cliente_email" value="' . ($order["details"]["ST"]->email!=''?$order["details"]["ST"]->email:$order["details"]["BT"]->email) . '"  />';
+		<input type="hidden" name="cliente_ddd" value="'.($order["details"]["BT"]->ddd!=''?$order["details"]["BT"]->ddd:$order["details"]["BT"]->ddd).'"  />
+		<input type="hidden" name="cliente_tel" value="' . ($order["details"]["BT"]->phone_1!=''?$order["details"]["BT"]->phone_1:$order["details"]["BT"]->phone_1) . '"  />
+		<input type="hidden" name="cliente_email" value="' . ($order["details"]["BT"]->email!=''?$order["details"]["BT"]->email:$order["details"]["BT"]->email) . '"  />';
 
         foreach ($cart->products as $p) {
             $i++;
@@ -215,7 +215,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 			<input type="hidden" name="item_descr_' . $i . '" value="' . $p->product_name . '">
 			<input type="hidden" name="item_quant_' . $i . '" value="' . $p->quantity . '">
 			<input type="hidden" name="item_valor_' . $i . '" value="' . number_format(($p->override ? $p->product_override_price : $p->product_price), 2, ",", ".") . '">
-			<input type="hidden" name="item_frete_' . $i . '" value="' . number_format((($order["details"]["ST"]->order_shipment!=''?$order["details"]["ST"]->order_shipment:$order["details"]["BT"]->order_shipment) / count($cart->products) / $p->quantity), 2, "", "") . '">
+			<input type="hidden" name="item_frete_' . $i . '" value="' . number_format((($order["details"]["BT"]->order_shipment!=''?$order["details"]["BT"]->order_shipment:$order["details"]["BT"]->order_shipment) / count($cart->products) / $p->quantity), 2, "", "") . '">
 			<input type="hidden" name="item_peso_' . $i . '" value="' . ShopFunctions::convertWeigthUnit($p->product_weight, $p->product_weight_uom, "GR") . '">';
         }
 

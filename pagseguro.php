@@ -59,17 +59,6 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
         );
 
         $this->setConfigParameterable($this->_configTableFieldName, $varsToPush);
-
-        $editor = JFactory::getEditor();
-		$task = JRequest::getVar('task');
-		$controller = JRequest::getVar('controller');
-		$view = JRequest::getVar('view');
-        if ($task == "edit" && $view == "paymentmethod" && $controller == "paymentmethod") {
-            $document = JFactory::getDocument();
-            $document->addScript(JURI::root() . "media/editors/tinymce/jscripts/tiny_mce/tiny_mce.js");
-            $document->addScriptDeclaration('tinyMCE.init({directionality: "ltr",editor_selector : "tinymce",language : "en",mode : "specific_textareas",skin : "default",theme : "advanced",inline_styles : true,gecko_spellcheck : true,entity_encoding : "raw",extended_valid_elements : "hr[id|title|alt|class|width|size|noshade|style],img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|style],a[id|class|name|href|target|title|onclick|rel|style]",force_br_newlines : false, force_p_newlines : true, forced_root_block : "p",invalid_elements : "script,applet,iframe",relative_urls : true,remove_script_host : false,document_base_url : "' . JURI::root() . '",content_css : "' . JURI::root() . 'templates/system/css/editor.css",theme_advanced_toolbar_location : "top",theme_advanced_toolbar_align : "left",theme_advanced_source_editor_height : "550",theme_advanced_source_editor_width : "750",theme_advanced_resizing : true,theme_advanced_resize_horizontal : false,theme_advanced_statusbar_location : "bottom", theme_advanced_path : true});');
-        }
-
         // self::$_this = $this;
     }
     /**
@@ -182,12 +171,8 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
             }
             $html .= $this->getHtmlRow('STANDARD_PAYMENTINFO', $payment_info);
         }
-        if (!class_exists('VirtueMartModelCurrency')) {
+        if (!class_exists('VirtueMartModelCurrency'))
             require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'currency.php');
-		}
-		if (!class_exists('CurrencyDisplay')) {
-			require(JPATH_VM_ADMINISTRATOR . DS . 'helpers' . DS . 'currencydisplay.php');
-		}
         $currency = CurrencyDisplay::getInstance('', $order['details']['BT']->virtuemart_vendor_id);
         $html .= $this->getHtmlRow('STANDARD_ORDER_NUMBER', $order['details']['BT']->order_number);
         $html .= $this->getHtmlRow('STANDARD_AMOUNT', $currency->priceDisplay($order['details']['BT']->order_total));

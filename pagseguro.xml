@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <install version="1.5" type="plugin" group="vmpayment" method="upgrade">
     <name>Pagseguro</name>
-    <creationDate>Março 2012</creationDate>
+    <creationDate>Agosto 2012</creationDate>
     <author>Fábio Paiva/Luiz F. Weber</author>
     <authorUrl>http://www.paiva.info - http://weber.eti.br</authorUrl>
     <copyright>Copyright (C) 2011-2011. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL</license>
-    <version>1.3</version>
+    <version>1.3.1</version>
     <description>
 	Plugin de pagamento Pagseguro
 	&lt;div style=&quot;background:#E5F5FF;border:1px solid #99D6FF;padding:10px;margin:10px; -box-shadow: inset 0px 0px 10px #fff, 0px 0px 5px #ccc; -webkit-box-shadow: inset 0px 0px 10px #fff, 0px 0px 5px #ccc; -moz-box-shadow: inset 0px 0px 10px #fff, 0px 0px 5px #ccc;&quot;&gt;

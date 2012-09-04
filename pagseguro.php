@@ -171,8 +171,8 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
             }
             $html .= $this->getHtmlRow('STANDARD_PAYMENTINFO', $payment_info);
         }
-        if (!class_exists('VirtueMartModelCurrency'))
-            require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'currency.php');
+		if (!class_exists('CurrencyDisplay'))
+            require( JPATH_VM_ADMINISTRATOR . DS . 'helpers' . DS . 'currencydisplay.php' );
         $currency = CurrencyDisplay::getInstance('', $order['details']['BT']->virtuemart_vendor_id);
         $html .= $this->getHtmlRow('STANDARD_ORDER_NUMBER', $order['details']['BT']->order_number);
         $html .= $this->getHtmlRow('STANDARD_AMOUNT', $currency->priceDisplay($order['details']['BT']->order_total));

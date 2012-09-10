@@ -276,15 +276,15 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
         $html .= $this->getHtmlRowBE('STANDARD_PAYMENT_TOTAL_CURRENCY', $paymentTable->payment_order_total . ' ' . $paymentTable->payment_currency);
         $html .= '</table>' . "\n";
         return $html;
-    }
+    }	
 
     function getCosts(VirtueMartCart $cart, $method, $cart_prices) {
-        if (preg_match('/%$/', $method->cost_percent_total)) {
-            $cost_percent_total = substr($method->cost_percent_total, 0, -1);
-        } else {
-            $cost_percent_total = $method->cost_percent_total;
-        }
-        return ($method->cost_per_transaction + ($cart_prices['salesPrice'] * $cost_percent_total * 0.01));
+		if (preg_match('/%$/', $method->cost_percent_total)) {
+			$cost_percent_total = substr($method->cost_percent_total, 0, -1);
+		} else {
+			$cost_percent_total = $method->cost_percent_total;
+		}
+		return ($method->cost_per_transaction + ($cart_prices['salesPrice'] * $cost_percent_total * 0.01));
     }
 
     /**

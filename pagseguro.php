@@ -7,7 +7,7 @@ if (!defined('_VALID_MOS') && !defined('_JEXEC'))
  * @version $Id: /home/components/com_virtuemart,v 1.4 2005/05/27 19:33:57 ei
  *
  * a special type of 'cash on delivey':
- * @author Max Milbers, ValÃ©rie Isaksen, Luiz F. Weber, Fábio Paiva
+ * @author Max Milbers, ValÃ©rie Isaksen, Luiz F. Weber, Fï¿½bio Paiva
  * @version $Id: /home/components/com_virtuemart 5122 2011-12-18 22:24:49Z alatak $
  * @package VirtueMart
  * @subpackage payment
@@ -146,7 +146,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 		$html = $this->retornaHtmlPagamento( $order, $method, 1);
 		
         JFactory::getApplication()->enqueueMessage(utf8_encode(
-			"Seu pedido foi realizado com sucesso. Você será direcionado para o site do Pagseguro, onde efetuará o pagamento da sua compra."
+			"Seu pedido foi realizado com sucesso. Vocï¿½ serï¿½ direcionado para o site do Pagseguro, onde efetuarï¿½ o pagamento da sua compra."
 		));
 
 		$novo_status = $method->status_aguardando;
@@ -223,17 +223,29 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 			$html .= '<input type="hidden" name="item_frete_1" value="0">';
 		}
 
+        // desconto do pedido
+        $order_discount = $order["details"]["BT"]->order_discount;
+        $order_subtotal = $order['details']['BT']->order_subtotal;
+
 		if(!class_exists('VirtueMartModelCustomfields'))require(JPATH_VM_ADMINISTRATOR.DS.'models'.DS.'customfields.php');
 
 		foreach ($order['items'] as $p) {
 			$i++;
-			$product_attribute = strip_tags(VirtueMartModelCustomfields::CustomsFieldOrderDisplay($p,'FE'));
+            $valor_produto = $p->product_final_price;
+            // desconto do pedido
+            if ($this->_desconto != 0) {
+                $valor_item = $valor_produto - (($valor_produto/$order_subtotal) * $order_discount);
+            } else {
+                $valor_item = $valor_produto;
+            }
+
+    		$product_attribute = strip_tags(VirtueMartModelCustomfields::CustomsFieldOrderDisplay($p,'FE'));
 			$html .='<input type="hidden" name="item_id_' . $i . '" value="' . $p->virtuemart_order_item_id . '">
 				<input type="hidden" name="item_descr_' . $i . '" value="' . $p->order_item_name . '">
 				<input type="hidden" name="item_quant_' . $i . '" value="' . $p->product_quantity . '">
 				<input type="hidden" name="item_valor_' . $i . '" value="' . number_format($p->product_final_price, 2, ",", "") .'">
 				<input type="hidden" name="item_peso_' . $i . '" value="' . ShopFunctions::convertWeigthUnit($p->product_weight, $p->product_weight_uom, "GR") . '">';
-		}		
+		}
 
 		$url 	= JURI::root();
 		$url_lib 			= $url.DS.'plugins'.DS.'vmpayment'.DS.'pagseguro'.DS;
@@ -439,7 +451,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 		}
 	
 		$view = JRequest::getVar('view');
-		// somente retorna se estiver como transação pendente
+		// somente retorna se estiver como transaï¿½ï¿½o pendente
 		if ($method->status_aguardando == $orderDetails['details']['BT']->order_status and $view == 'orders' and $orderDetails['details']['BT']->virtuemart_paymentmethod_id == $virtuemart_paymentmethod_id) {
 			JFactory::getApplication()->enqueueMessage(utf8_encode(
 				"O pagamento deste pedido consta como Pendente de pagamento ainda. Clique pra  Voc&ecirc; ser&aacute; direcionado para o site do Pagseguro, onde efetuar&aacute; o pagamento da sua compra.")
@@ -635,7 +647,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 			 * Created: A German ELV payment is made using Express Checkout.
 			 * Denied: You denied the payment. This happens only if the payment was previously pending because of possible reasons described for the pending_reason variable or the Fraud_Management_Filters_x variable.
 			 * Expired: This authorization has expired and cannot be captured.
-			 * Failed: The payment has failed. This happens only if the payment was made from your customer’s bank account.
+			 * Failed: The payment has failed. This happens only if the payment was made from your customerï¿½s bank account.
 			 * Pending: The payment is pending. See pending_reason for more information.
 			 * Refunded: You refunded the payment.
 			 * Reversed: A payment was reversed due to a chargeback or other type of reversal. The funds have been removed from your account balance and returned to the buyer. The reason for the reversal is specified in the ReasonCode element.
@@ -651,7 +663,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 			switch($pagseguro_status){
 				case 'Completo': 	$new_status = $method->status_completo; break;
 				case 'Aprovado': 	$new_status = $method->status_aprovado; break;
-				case 'Em Análise': 	$new_status = $method->status_analise; break;
+				case 'Em Anï¿½lise': 	$new_status = $method->status_analise; break;
 				case 'Cancelado': 	$new_status = $method->status_cancelado; break;
 				case 'Paga': 		$new_status = $method->status_paga; break;
 				case 'Disponivel': 	$new_status = $method->status_disponivel; break;
@@ -711,7 +723,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
       return null;
       }
      */
-		 // retorno da transação para o pedido específico
+		 // retorno da transaï¿½ï¿½o para o pedido especï¿½fico
 	 function plgVmOnPaymentResponseReceived(&$html) {
 
 		// the payment itself should send the parameter needed.

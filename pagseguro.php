@@ -233,7 +233,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 			$i++;
             $valor_produto = $p->product_final_price;
             // desconto do pedido
-            if ($this->_desconto != 0) {
+            if ($order_discount != 0) {
                 $valor_item = $valor_produto - (($valor_produto/$order_subtotal) * $order_discount);
             } else {
                 $valor_item = $valor_produto;

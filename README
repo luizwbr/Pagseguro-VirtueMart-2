@@ -1,10 +1,11 @@
 ========================================================================================================================================
-Plugin Pagamento Pagseguro Virtuemart 2.0 1.3.1
+Plugin Pagamento Pagseguro Virtuemart 2.0 1.4
 Loja Weber - Webgenium
 ========================================================================================================================================
 
 *** Para instalar no Virtuemart, basta compactar os arquivos e usar o instalador do Joomla 1.6,1.7,2.5
 
+* Requisito: VirtueMart 2.0.16
 
 Passo 1 - Habilite o plugin aqui Administrar Plugins
 Passo 2 - Instale Plugin por esta tela Métodos de pagamento

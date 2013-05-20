@@ -4,10 +4,11 @@ if (!defined('_VALID_MOS') && !defined('_JEXEC'))
     die('Direct Access to ' . basename(__FILE__) . ' is not allowed.');
 
 /**
- * @version $Id: /home/components/com_virtuemart,v 1.4 2005/05/27 19:33:57 ei
+ * @version $Id: /pagseguro.php,v 1.4 2013/05/20 luizwbri
  *
- * a special type of 'cash on delivey':
- * @author Max Milbers, Valérie Isaksen, Luiz F. Weber, F�bio Paiva
+ * a special type of 'cash on delivey': * 
+ * @author Luiz F. Weber, Fábio Paiva
+ * @co-author Max Milbers, Valérie Isaksen ( original plugin )
  * @version $Id: /home/components/com_virtuemart 5122 2011-12-18 22:24:49Z alatak $
  * @package VirtueMart
  * @subpackage payment
@@ -21,6 +22,7 @@ if (!defined('_VALID_MOS') && !defined('_JEXEC'))
  *
  * http://virtuemart.net
  */
+ 
 if (!class_exists('vmPSPlugin'))
     require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
 
@@ -50,12 +52,12 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
             'status_devolvida'=> array('', 'char'),
             'status_disputa'=> array('', 'char'),
             'segundos_redirecionar'=> array('', 'string'),
-			'countries' => array('', 'char'),
-			'min_amount' => array('', 'int'),
-			'max_amount' => array('', 'int'),
-			'cost_per_transaction' => array('', 'int'),
-			'cost_percent_total' => array('', 'int'),
-			'tax_id' => array(0, 'int'),
+            'countries' => array('', 'char'),
+            'min_amount' => array('', 'int'),
+            'max_amount' => array('', 'int'),
+            'cost_per_transaction' => array('', 'int'),
+            'cost_percent_total' => array('', 'int'),
+            'tax_id' => array(0, 'int')
         );
 
         $this->setConfigParameterable($this->_configTableFieldName, $varsToPush);
@@ -75,7 +77,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
      */
     function getTableSQLFields() {
         $SQLfields = array(
-            'id' => 'tinyint(1) unsigned NOT NULL AUTO_INCREMENT',
+            'id' => 'bigint(1) unsigned NOT NULL AUTO_INCREMENT',
             'virtuemart_order_id' => 'int(11) UNSIGNED DEFAULT NULL',
             'order_number' => 'char(32) DEFAULT NULL',
             'virtuemart_paymentmethod_id' => 'mediumint(1) UNSIGNED DEFAULT NULL',
@@ -131,7 +133,6 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
         $totalInPaymentCurrency = round($paymentCurrency->convertCurrencyTo($method->payment_currency, $order['details']['BT']->order_total, false), 2);
         $cd = CurrencyDisplay::getInstance($cart->pricesCurrency);
 
-
         $this->_virtuemart_paymentmethod_id = $order['details']['BT']->virtuemart_paymentmethod_id;
         $dbValues['payment_name'] = $this->renderPluginName($method);
         $dbValues['order_number'] = $order['details']['BT']->order_number;
@@ -146,7 +147,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 		$html = $this->retornaHtmlPagamento( $order, $method, 1);
 		
         JFactory::getApplication()->enqueueMessage(utf8_encode(
-			"Seu pedido foi realizado com sucesso. Voc� ser� direcionado para o site do Pagseguro, onde efetuar� o pagamento da sua compra."
+			"Seu pedido foi realizado com sucesso. Voc&ecirc; ser&aacute; direcionado para o site do Pagseguro, onde efetuar&aacute; o pagamento da sua compra."
 		));
 
 		$novo_status = $method->status_aguardando;
@@ -224,7 +225,16 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 		}
 
         // desconto do pedido
-        $order_discount = $order["details"]["BT"]->order_discount;
+        $order_discount = (float)$order["details"]["BT"]->order_discount;
+		if (empty($order_discount) && (!empty($order["details"]["BT"]->coupon_discount))) {
+            $order_discount = (float)$order["details"]["BT"]->coupon_discount; 
+		}
+		$order_discount = (-1)*abs($order_discount); 
+		if (!empty($order_discount)) {
+		   $html .= '<input type="hidden" name="extras" value="'.number_format($order_discount, 2, ",", "").'" />'; 
+		}
+		//var_dump($order_discount); die(); 
+		//var_dump($order["details"]["BT"]->order_discount); die(); 
         $order_subtotal = $order['details']['BT']->order_subtotal;
 
 		if(!class_exists('VirtueMartModelCustomfields'))require(JPATH_VM_ADMINISTRATOR.DS.'models'.DS.'customfields.php');
@@ -233,11 +243,14 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 			$i++;
             $valor_produto = $p->product_final_price;
             // desconto do pedido
+			/*
             if ($order_discount != 0) {
                 $valor_item = $valor_produto - (($valor_produto/$order_subtotal) * $order_discount);
             } else {
+			}
+			*/
                 $valor_item = $valor_produto;
-            }
+            
 
     		$product_attribute = strip_tags(VirtueMartModelCustomfields::CustomsFieldOrderDisplay($p,'FE'));
 			$html .='<input type="hidden" name="item_id_' . $i . '" value="' . $p->virtuemart_order_item_id . '">
@@ -622,11 +635,13 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 
 		//$response_fields[$this->_tablepkey] = $this->_getTablepkeyValue($virtuemart_order_id);
 		//$response_fields['payment_name'] = $this->renderPluginName($method);
+        //$response_fields['paypalresponse_raw'] = $post_msg;
+        //$return_context = $pagseguro_data['custom'];
+
 		$response_fields['payment_name'] = $payment->payment_name;
-		//$response_fields['paypalresponse_raw'] = $post_msg;
-		//$return_context = $pagseguro_data['custom'];
 		$response_fields['order_number'] = $order_number;
 		$response_fields['virtuemart_order_id'] = $virtuemart_order_id;
+
 		//$preload=true   preload the data here too preserve not updated data
 		//$this->storePSPluginInternalData($response_fields, 'virtuemart_order_id', true);
 
@@ -663,7 +678,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 			switch($pagseguro_status){
 				case 'Completo': 	$new_status = $method->status_completo; break;
 				case 'Aprovado': 	$new_status = $method->status_aprovado; break;
-				case 'Em An�lise': 	$new_status = $method->status_analise; break;
+				case 'Em Análise': 	$new_status = $method->status_analise; break;
 				case 'Cancelado': 	$new_status = $method->status_cancelado; break;
 				case 'Paga': 		$new_status = $method->status_paga; break;
 				case 'Disponivel': 	$new_status = $method->status_disponivel; break;
@@ -685,7 +700,6 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 			$order['order_status'] = $new_status;
 			$order['virtuemart_order_id'] = $virtuemart_order_id;
 			$order['comments'] = 'O status do seu pedido '.$order_number.' no Pagseguro foi atualizado: '.utf8_encode($pagseguro_data['StatusTransacao']);
-			//JText::sprintf('VMPAYMENT_PAYPAL_PAYMENT_CONFIRMED', $order_number);
 			if ($nb_history == 1) {
 				$order['comments'] .= "<br />" . JText::sprintf('VMPAYMENT_PAYPAL_EMAIL_SENT');
 				$order['customer_notified'] = 0;
@@ -723,7 +737,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
       return null;
       }
      */
-		 // retorno da transa��o para o pedido espec�fico
+		 // retorno da transacao para o pedido espec�fico
 	 function plgVmOnPaymentResponseReceived(&$html) {
 
 		// the payment itself should send the parameter needed.
@@ -778,7 +792,6 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 			}
 			}
 		}
-		$cart = VirtueMartCart::getCart();
 		//We delete the old stuff
 		// get the correct cart / session
 		$cart = VirtueMartCart::getCart();

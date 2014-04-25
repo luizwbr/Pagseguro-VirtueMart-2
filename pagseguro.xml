@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <install version="1.5" type="plugin" group="vmpayment" method="upgrade">
     <name>Pagseguro</name>
-    <creationDate>Agosto 2012</creationDate>
+    <creationDate>25 Abril 2014</creationDate>
     <author>Fábio Paiva/Luiz F. Weber</author>
     <authorUrl>http://www.paiva.info - http://weber.eti.br</authorUrl>
-    <copyright>Copyright (C) 2011-2011. All rights reserved.</copyright>
+    <copyright>Copyright (C) 2014. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL</license>
-    <version>1.3.1</version>
+    <version>1.4</version>
     <description>
 	Plugin de pagamento Pagseguro
 	&lt;div style=&quot;background:#E5F5FF;border:1px solid #99D6FF;padding:10px;margin:10px; -box-shadow: inset 0px 0px 10px #fff, 0px 0px 5px #ccc; -webkit-box-shadow: inset 0px 0px 10px #fff, 0px 0px 5px #ccc; -moz-box-shadow: inset 0px 0px 10px #fff, 0px 0px 5px #ccc;&quot;&gt;
@@ -48,18 +48,21 @@
         <filename plugin="pagseguro">pagseguro.php</filename>
         <folder>imagens</folder>
     </files>
+    <media folder="imagens" destination="/images/stories/virtuemart/payment">
+        <filename>pagseguro.gif</filename>
+    </media>
     <params addpath="/administrator/components/com_virtuemart/elements">
         <param type="vmjpluginwarning" />
         <param	name="payment_logos" type="vmfiles" label="VMPAYMENT_STANDARD_LOGOS"
 		description="VMPAYMENT_STANDARD_LOGOS_DESC"
 		directory="/images/stories/virtuemart/payment"
 		default="default" hide_default="1" hide_none="1"
-		stripext="0"   exclude="^_" />	        
+		stripext="0"   exclude="^_" />
 
         <param name="email_cobranca" type="text" size="20"  label="Email pagseguro" description="Email usado para efetuar login no Pagseguro" />        
         <param type="spacer" default="&lt;b&gt;Configurações de retorno do Pagseguro&lt;/b&gt;: Não se esqueça de apontar a URL de retorno nas configurações do Pagseguro para: &lt;br/&gt; &lt;em&gt;http://seusite/index.php?option=com_virtuemart&amp;view=pluginresponse&amp;task=pluginnotification&lt;/em&gt;" label="Retorno" />
         <param name="token" type="text"  label="Token" description="Token gerado para sua conta no pagseguro" size="60" />
-        <param name="tipo_frete" type="list" default="1" label="Tipo de frete padrão">
+        <param name="tipo_frete" type="list" default="1" description="Este campo será usado somente se tiver com a configuração de frete para não pegar o frete da loja" label="Tipo de frete padrão">
             <option value="1">Sedex</option>
             <option value="0">Encomenda PAC</option>
         </param>
@@ -84,6 +87,11 @@
 		<param name="cost_percent_total" type="text"  label="Custo percentual total" description="Custo percentual total pela venda" />
 		<param name="tax_id" type="vmtaxes" scope="com_virtuemart"  label="Tarifa/Imposto" description="Imposto ou tarifa aplicada" />
 		
-	<param type="spacer" default="&lt;br/&gt;&lt;a target='_blank' href='https://pagseguro.uol.com.br/security/webpagamentos/webdoacao.aspx?email_cobranca=fabio@paiva.info&amp;moeda=BRL'&gt;&lt;img src='https://pagseguro.uol.com.br/Security/Imagens/FacaSuaDoacao.gif' /&gt;&lt;/a&gt;&lt;hr/&gt;Licença: &lt;a href='http://www.gnu.org/licenses/gpl-3.0.html'&gt;GNU/GPL v3&lt;/a&gt; - Desenvolvido por Fábio Paiva - &lt;a href='http://paiva.info'&gt;Paiva Info&lt;/a&gt; | Luiz Weber - &lt;a href='http://weber.eti.br'&gt;Weber TI&lt;/a&gt; | &lt;a href='http://webgenium.com.br'&gt;Webgenium System&lt;/a&gt;" />
+		<param name="modo_calculo_desconto" type="list" default="1" label="Modo de cálculo de descontos/tarifas">
+            <option value="1">Modo Simples ( desconto normal )</option>
+            <option value="2">Modo VirtueMart ( desconto progressivo )</option>
+        </param>
+
+		<param type="spacer" default="&lt;br/&gt;&lt;a target='_blank' href='https://pagseguro.uol.com.br/security/webpagamentos/webdoacao.aspx?email_cobranca=fabio@paiva.info&amp;moeda=BRL'&gt;&lt;img src='https://pagseguro.uol.com.br/Security/Imagens/FacaSuaDoacao.gif' /&gt;&lt;/a&gt;&lt;hr/&gt;Licença: &lt;a href='http://www.gnu.org/licenses/gpl-3.0.html'&gt;GNU/GPL v3&lt;/a&gt; - Desenvolvido por Fábio Paiva - &lt;a href='http://paiva.info'&gt;Paiva Info&lt;/a&gt; | Luiz Weber - &lt;a href='http://weber.eti.br'&gt;Weber TI&lt;/a&gt; | &lt;a href='http://webgenium.com.br'&gt;Webgenium System&lt;/a&gt;" />
     </params>
 </install>

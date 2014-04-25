@@ -38,28 +38,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 
         $this->_loggable = true;
         $this->tableFields = array_keys($this->getTableSQLFields());
-        $varsToPush = array('payment_logos' => array('', 'char'),
-            'email_cobranca' => array('', 'string'),
-            'tipo_frete' => array('', 'int'),
-            'token' => array('', 'string'),
-            'status_completo'=> array('', 'char'),
-            'status_aprovado'=> array('', 'char'),
-            'status_analise'=> array('', 'char'),
-            'status_cancelado'=> array('', 'char'),
-            'status_aguardando'=> array('', 'char'),
-            'status_paga'=> array('', 'char'),
-            'status_disponivel'=> array('', 'char'),
-            'status_devolvida'=> array('', 'char'),
-            'status_disputa'=> array('', 'char'),
-            'segundos_redirecionar'=> array('', 'string'),
-            'countries' => array('', 'char'),
-            'min_amount' => array('', 'int'),
-            'max_amount' => array('', 'int'),
-            'cost_per_transaction' => array('', 'int'),
-            'cost_percent_total' => array('', 'int'),
-            'tax_id' => array(0, 'int')
-        );
-
+        $varsToPush = $this->getVarsToPush ();
         $this->setConfigParameterable($this->_configTableFieldName, $varsToPush);
         // self::$_this = $this;
     }
@@ -77,7 +56,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
      */
     function getTableSQLFields() {
         $SQLfields = array(
-            'id' => 'bigint(1) unsigned NOT NULL AUTO_INCREMENT',
+            'id' => 'bigint(15) unsigned NOT NULL AUTO_INCREMENT',
             'virtuemart_order_id' => 'int(11) UNSIGNED DEFAULT NULL',
             'order_number' => 'char(32) DEFAULT NULL',
             'virtuemart_paymentmethod_id' => 'mediumint(1) UNSIGNED DEFAULT NULL',
@@ -225,33 +204,23 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
         }
 
         // desconto do pedido
-        //$order_discount = (float)$order["details"]["BT"]->order_discount;
-        //if (empty($order_discount) && (!empty($order["details"]["BT"]->coupon_discount))) {
-        $order_discount = (float)$order["details"]["BT"]->coupon_discount;
-        //}
+        $order_discount = (float)$order["details"]["BT"]->order_discount;
+        if (empty($order_discount) && (!empty($order["details"]["BT"]->coupon_discount))) {
+            $order_discount = (float)$order["details"]["BT"]->coupon_discount;
+        }
 
         $order_discount = (-1)*abs($order_discount);
         if (!empty($order_discount)) {
            $html .= '<input type="hidden" name="extras" value="'.number_format($order_discount, 2, ",", "").'" />'; 
         }
-        //var_dump($order_discount); die(); 
-        //var_dump($order["details"]["BT"]->order_discount); die(); 
+
         $order_subtotal = $order['details']['BT']->order_subtotal;
-
-        if(!class_exists('VirtueMartModelCustomfields'))require(JPATH_VM_ADMINISTRATOR.DS.'models'.DS.'customfields.php');
-
-       
+        if(!class_exists('VirtueMartModelCustomfields'))require(JPATH_VM_ADMINISTRATOR.DS.'models'.DS.'customfields.php');      
         
         foreach ($order['items'] as $p) {
             $i++;           
             $valor_produto = $p->product_final_price;
-            // desconto do pedido
-            /*
-            if ($order_discount != 0) {
-                $valor_item = $valor_produto - (($valor_produto/$order_subtotal) * $order_discount);
-            } else {
-            }
-            */
+            // desconto do pedido            
             $valor_item = $valor_produto;           
 
             $product_attribute = strip_tags(VirtueMartModelCustomfields::CustomsFieldOrderDisplay($p,'FE'));
@@ -262,9 +231,9 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
                 <input type="hidden" name="item_peso_' . $i . '" value="' . ShopFunctions::convertWeigthUnit($p->product_weight, $p->product_weight_uom, "GR") . '">';
         }
 
-        $url    = JURI::root();
-        $url_lib            = $url.DS.'plugins'.DS.'vmpayment'.DS.'pagseguro'.DS;
-        $url_imagem_pagamento   = $url_lib . 'imagens'.DS.'pagseguro.gif';
+        $url                  = JURI::root();
+        $url_lib              = $url.DS.'plugins'.DS.'vmpayment'.DS.'pagseguro'.DS;
+        $url_imagem_pagamento = $url_lib . 'imagens'.DS.'pagseguro.gif';
 
         // segundos para redirecionar para o Pagseguro
         if ($redir) {
@@ -273,7 +242,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
             $html .= '<br/><br/>Voc&egrave; ser&aacute; direcionado para a tela de pagamento em '.$segundos.' segundo(s), ou ent&atilde;o clique logo abaixo:<br />';
             $html .= '<script>setTimeout(\'document.getElementById("frm_pagseguro").submit();\','.$segundos.'000);</script>';
         }
-        $html .= '<div align="center"><br /><input type="image" value="Clique aqui para efetuar o pagamento" class="button" src="'.$url_imagem_pagamento.'" /></div>';
+        $html .= '<div align="center"><br /><input type="image" value="Clique aqui para efetuar o pagamento" src="'.$url_imagem_pagamento.'" /></div>';
         $html .= '</form>';     
         return $html;
     }
@@ -313,6 +282,109 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
         }
         return ($method->cost_per_transaction + ($cart_prices['salesPrice'] * $cost_percent_total * 0.01));
     }
+
+       
+    function setCartPrices (VirtueMartCart $cart, &$cart_prices, $method) {
+
+        if ($method->modo_calculo_desconto == '2') {
+            return parent::setCartPrices($cart, &$cart_prices, $method);
+        } else {
+
+            if (!class_exists ('calculationHelper')) {
+                require(JPATH_VM_ADMINISTRATOR . DS . 'helpers' . DS . 'calculationh.php');
+            }
+            $_psType = ucfirst ($this->_psType);
+            $calculator = calculationHelper::getInstance ();
+
+            $cart_prices[$this->_psType . 'Value'] = $calculator->roundInternal ($this->getCosts ($cart, $method, $cart_prices), 'salesPrice');
+
+            /*
+            if($this->_psType=='payment'){
+                $cartTotalAmountOrig=$this->getCartAmount($cart_prices);
+                $cartTotalAmount=($cartTotalAmountOrig + $method->cost_per_transaction) / (1 -($method->cost_percent_total * 0.01));
+                $cart_prices[$this->_psType . 'Value'] = $cartTotalAmount - $cartTotalAmountOrig;
+            }
+            */
+
+            $taxrules = array();
+            if(isset($method->tax_id) and (int)$method->tax_id === -1){
+
+            } else if (!empty($method->tax_id)) {
+                $cart_prices[$this->_psType . '_calc_id'] = $method->tax_id;
+
+                $db = JFactory::getDBO ();
+                $q = 'SELECT * FROM #__virtuemart_calcs WHERE `virtuemart_calc_id`="' . $method->tax_id . '" ';
+                $db->setQuery ($q);
+                $taxrules = $db->loadAssocList ();
+
+                if(!empty($taxrules) ){
+                    foreach($taxrules as &$rule){
+                        if(!isset($rule['subTotal'])) $rule['subTotal'] = 0;
+                        if(!isset($rule['taxAmount'])) $rule['taxAmount'] = 0;
+                        $rule['subTotalOld'] = $rule['subTotal'];
+                        $rule['taxAmountOld'] = $rule['taxAmount'];
+                        $rule['taxAmount'] = 0;
+                        $rule['subTotal'] = $cart_prices[$this->_psType . 'Value'];
+                    }
+                }
+            } else {
+                $taxrules = array_merge($calculator->_cartData['VatTax'],$calculator->_cartData['taxRulesBill']);
+
+                if(!empty($taxrules) ){
+                    $denominator = 0.0;
+                    foreach($taxrules as &$rule){
+                        //$rule['numerator'] = $rule['calc_value']/100.0 * $rule['subTotal'];
+                        if(!isset($rule['subTotal'])) $rule['subTotal'] = 0;
+                        if(!isset($rule['taxAmount'])) $rule['taxAmount'] = 0;
+                        $denominator += ($rule['subTotal']-$rule['taxAmount']);
+                        $rule['subTotalOld'] = $rule['subTotal'];
+                        $rule['subTotal'] = 0;
+                        $rule['taxAmountOld'] = $rule['taxAmount'];
+                        $rule['taxAmount'] = 0;
+                        //$rule['subTotal'] = $cart_prices[$this->_psType . 'Value'];
+                    }
+                    if(empty($denominator)){
+                        $denominator = 1;
+                    }
+
+                    foreach($taxrules as &$rule){
+                        $frac = ($rule['subTotalOld']-$rule['taxAmountOld'])/$denominator;
+                        $rule['subTotal'] = $cart_prices[$this->_psType . 'Value'] * $frac;
+                        vmdebug('Part $denominator '.$denominator.' $frac '.$frac,$rule['subTotal']);
+                    }
+                }
+            }
+
+
+            if(empty($method->cost_per_transaction)) $method->cost_per_transaction = 0.0;
+            if(empty($method->cost_percent_total)) $method->cost_percent_total = 0.0;
+
+            if (count ($taxrules) > 0 ) {
+
+                $cart_prices['salesPrice' . $_psType] = $calculator->roundInternal ($calculator->executeCalculation ($taxrules, $cart_prices[$this->_psType . 'Value'],true,false), 'salesPrice');
+                //vmdebug('I am in '.get_class($this).' and have this rules now',$taxrules,$cart_prices[$this->_psType . 'Value'],$cart_prices['salesPrice' . $_psType]);
+                $cart_prices[$this->_psType . 'Tax'] = $calculator->roundInternal (($cart_prices['salesPrice' . $_psType] -  $cart_prices[$this->_psType . 'Value']), 'salesPrice');
+                reset($taxrules);
+                $taxrule =  current($taxrules);
+                $cart_prices[$this->_psType . '_calc_id'] = $taxrule['virtuemart_calc_id'];
+
+                foreach($taxrules as &$rule){
+                    if(isset($rule['subTotalOld'])) $rule['subTotal'] += $rule['subTotalOld'];
+                    if(isset($rule['taxAmountOld'])) $rule['taxAmount'] += $rule['taxAmountOld'];
+                }
+
+            } else {
+                $cart_prices['salesPrice' . $_psType] = $cart_prices[$this->_psType . 'Value'];
+                $cart_prices[$this->_psType . 'Tax'] = 0;
+                $cart_prices[$this->_psType . '_calc_id'] = 0;
+            }
+
+
+            return $cart_prices['salesPrice' . $_psType];
+        }
+    }
+
+
 
     /**
      * Check if the payment conditions are fulfilled for this payment method
@@ -600,7 +672,6 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
         }       
         $order_number = $pagseguro_data['Referencia'];
         $virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_number);
-        //$this->logInfo('plgVmOnPaymentNotification: virtuemart_order_id  found ' . $virtuemart_order_id, 'message');
 
         if (!$virtuemart_order_id) {
             return;
@@ -635,27 +706,12 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
             }
         }
 
-        //$response_fields[$this->_tablepkey] = $this->_getTablepkeyValue($virtuemart_order_id);
-        //$response_fields['payment_name'] = $this->renderPluginName($method);
-        //$response_fields['paypalresponse_raw'] = $post_msg;
-        //$return_context = $pagseguro_data['custom'];
 
         $response_fields['payment_name'] = $payment->payment_name;
         $response_fields['order_number'] = $order_number;
         $response_fields['virtuemart_order_id'] = $virtuemart_order_id;
 
-        //$preload=true   preload the data here too preserve not updated data
-        //$this->storePSPluginInternalData($response_fields, 'virtuemart_order_id', true);
-
-        /*
-        $error_msg = $this->_processIPN($pagseguro_data, $method);
-        $this->logInfo('process IPN ' . $error_msg, 'message');     
-        if (!(empty($error_msg) )) {
-            $new_status = $method->status_canceled;
-            $this->logInfo('process IPN ' . $error_msg . ' ' . $new_status, 'ERROR');
-        } else {
-            $this->logInfo('process IPN OK', 'message');
-        }*/
+      
             /*
              * https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_IPNandPDTVariables
              * The status of the payment:

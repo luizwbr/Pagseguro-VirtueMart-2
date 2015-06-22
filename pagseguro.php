@@ -211,7 +211,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 
         $order_discount = (-1)*abs($order_discount);
         if (!empty($order_discount)) {
-           $html .= '<input type="hidden" name="extras" value="'.number_format($order_discount, 2, ",", "").'" />'; 
+           $html .= '<input type="hidden" name="extraAmount" value="'.number_format($order_discount, 2, ",", "").'" />'; 
         }
 
         $order_subtotal = $order['details']['BT']->order_subtotal;

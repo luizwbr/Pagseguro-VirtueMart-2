@@ -47,6 +47,7 @@
     <files>
         <filename plugin="pagseguro">pagseguro.php</filename>
         <folder>imagens</folder>
+        <folder>PagSeguroLibrary</folder>
     </files>
     <media folder="imagens" destination="/images/stories/virtuemart/payment">
         <filename>pagseguro.gif</filename>

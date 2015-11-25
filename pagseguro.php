@@ -26,6 +26,10 @@ if (!defined('_VALID_MOS') && !defined('_JEXEC'))
 if (!class_exists('vmPSPlugin'))
     require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
 
+if (!class_exists('PagSeguroLibrary')) {
+    require('PagSeguroLibrary/PagSeguroLibrary.php');
+}
+
 class plgVmPaymentPagseguro extends vmPSPlugin {
 
     // instance of class
@@ -159,48 +163,68 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
         $html .= '</table>' . "\n";
         
         //buscar forma de envio
-        $db = &JFactory::getDBO();
-        $q = 'SELECT `shipment_element` FROM `#__virtuemart_shipmentmethods` WHERE `virtuemart_shipmentmethod_id`="' . $order["details"]["ST"]->virtuemart_shipmentmethod_id . '" ';
-        $db->setQuery($q);
-        $envio = $db->loadResult();
+        /*
+            $db = &JFactory::getDBO();
+            $q = 'SELECT `shipment_element` FROM `#__virtuemart_shipmentmethods` WHERE `virtuemart_shipmentmethod_id`="' . $order["details"]["ST"]->virtuemart_shipmentmethod_id . '" ';
+            $db->setQuery($q);
+            $envio = $db->loadResult();
 
-        if (stripos($envio, "sedex") === false && stripos($envio, "pac") === false) {
-            $tipo_frete = $method->tipo_frete ? 'SD' : 'EN'; // Encomenda Pac ou Sedex
-        } elseif (stripos($envio, "sedex") !== false) {
-            $tipo_frete = "SD";
+            if (stripos($envio, "sedex") === false && stripos($envio, "pac") === false) {
+                $tipo_frete = $method->tipo_frete ? 'SD' : 'EN'; // Encomenda Pac ou Sedex
+            } elseif (stripos($envio, "sedex") !== false) {
+                $tipo_frete = "SD";
+            } else {
+                $tipo_frete = "EN";
+            }
+        */
+
+        // configuração dos campos
+        $campo_complemento = $method->campo_complemento;
+        $campo_numero   = $method->campo_numero;
+
+        $html .= '<form id="frm_pagseguro" action="https://pagseguro.uol.com.br/v2/checkout/payment.html" method="post" >    ';
+        $html .= '  <input type="hidden" name="receiverEmail" value="' . $method->email_cobranca . '"  />
+                    <input type="hidden" name="currency" value="BRL"  />
+                    <input type="hidden" name="tipo" value="CP"  />
+                    <input type="hidden" name="encoding" value="utf-8"  />';
+
+        if (isset($order["details"]["ST"]->$campo_complemento)) {
+            $complemento = $order["details"]["ST"]->$campo_complemento;
         } else {
-            $tipo_frete = "EN";
+            $complemento = '';
         }
 
-        $html .= '<form id="frm_pagseguro" action="https://pagseguro.uol.com.br/security/webpagamentos/webpagto.aspx" method="post" >    ';
-        $html .= '  <input type="hidden" name="email_cobranca" value="' . $method->email_cobranca . '"  />
-                    <input type="hidden" name="moeda" value="BRL"  />
-                    <input type="hidden" name="tipo" value="CP"  />
-                    <input type="hidden" name="encoding" value="utf-8"  />
-                    <input type="hidden" name="ref_transacao" value="' . ($order["details"]["ST"]->order_number!=''?$order["details"]["ST"]->order_number:$order["details"]["BT"]->order_number) . '"  />
-                    <input type="hidden" name="tipo_frete" value="' . $tipo_frete . '"  />';
+        if (isset($order["details"]["ST"]->$campo_numero)) {
+            $numero = $order["details"]["ST"]->$campo_numero;
+        } else {
+            $numero = '';
+        }
 
-        $html .= '<input type="hidden" name="cliente_nome" value="' . ($order["details"]["ST"]->first_name!=''?$order["details"]["ST"]->first_name:$order["details"]["BT"]->first_name) . ' ' . ($order["details"]["ST"]->last_name!=''?$order["details"]["ST"]->last_name:$order["details"]["BT"]->last_name) . '"  />
-        <input type="hidden" name="cliente_cep" value="' . ($order["details"]["ST"]->zip!=''?$order["details"]["ST"]->zip:$order["details"]["BT"]->zip) . '"  />
-        <input type="hidden" name="cliente_end" value="' . ($order["details"]["ST"]->address_1!=''?$order["details"]["ST"]->address_1:$order["details"]["BT"]->address_1) . ' ' . ($order["details"]["ST"]->address_2!=''?$order["details"]["ST"]->address_2:$order["details"]["BT"]->address_2) . '"  />
-        <input type="hidden" name="cliente_num" value=""  />
-        <input type="hidden" name="cliente_compl" value=""  />
-        <input type="hidden" name="cliente_cidade" value="' . ($order["details"]["ST"]->city!=''?$order["details"]["ST"]->city:$order["details"]["BT"]->city) . '"  />';    
+        $html .= '<input name="reference" type="hidden" value="'.($order["details"]["ST"]->order_number!=''?$order["details"]["ST"]->order_number:$order["details"]["BT"]->order_number).'">';
+
+
+        $html .= '<input type="hidden" name="senderName" value="' . ($order["details"]["ST"]->first_name!=''?$order["details"]["ST"]->first_name:$order["details"]["BT"]->first_name) . ' ' . ($order["details"]["ST"]->last_name!=''?$order["details"]["ST"]->last_name:$order["details"]["BT"]->last_name) . '"  />
+        <input type="hidden" name="shippingType" value="' . $method->tipo_frete . '"  />
+        <input type="hidden" name="shippingAddressPostalCode" value="' . ($order["details"]["ST"]->zip!=''?$order["details"]["ST"]->zip:$order["details"]["BT"]->zip) . '"  />
+        <input type="hidden" name="shippingAddressStreet" value="' . ($order["details"]["ST"]->address_1!=''?$order["details"]["ST"]->address_1:$order["details"]["BT"]->address_1) . ' ' . ($order["details"]["ST"]->address_2!=''?$order["details"]["ST"]->address_2:$order["details"]["BT"]->address_2) . '"  />
+        <input type="hidden" name="shippingAddressNumber" value="'.$numero.'"  />
+        <input type="hidden" name="shippingAddressComplement" value="'.$complemento.'"  />
+        <input type="hidden" name="shippingAddressCity" value="' . ($order["details"]["ST"]->city!=''?$order["details"]["ST"]->city:$order["details"]["BT"]->city) . '"  />';    
         $cod_estado = (!empty($order["details"]["ST"]->virtuemart_state_id)?$order["details"]["ST"]->virtuemart_state_id:$order["details"]["BT"]->virtuemart_state_id);     
         $estado = ShopFunctions::getStateByID($cod_estado, "state_2_code");             
         $html.='
-        <input type="hidden" name="cliente_uf" value="' . $estado . '"  />
-        <input type="hidden" name="cliente_pais" value="BRA"  />
-        <input type="hidden" name="cliente_ddd" value=""  />
-        <input type="hidden" name="cliente_tel" value="' . ($order["details"]["ST"]->phone_1!=''?$order["details"]["ST"]->phone_1:$order["details"]["BT"]->phone_1) . '"  />
-        <input type="hidden" name="cliente_email" value="' . ($order["details"]["ST"]->email!=''?$order["details"]["ST"]->email:$order["details"]["BT"]->email) . '"  />';
+        <input type="hidden" name="shippingAddressState" value="' . $estado . '"  />
+        <input type="hidden" name="shippingAddressCountry" value="BRA"  />
+        <input type="hidden" name="senderAreaCode" value=""  />
+        <input type="hidden" name="senderPhone" value="' . ($order["details"]["ST"]->phone_1!=''?$order["details"]["ST"]->phone_1:$order["details"]["BT"]->phone_1) . '"  />
+        <input type="hidden" name="senderEmail" value="' . ($order["details"]["ST"]->email!=''?$order["details"]["ST"]->email:$order["details"]["BT"]->email) . '"  />';
         
         // total do frete
         // configurado para passar o frete do total da compra
         if (!empty($order["details"]["BT"]->order_shipment)) {
-            $html .= '<input type="hidden" name="item_frete_1" value="' . number_format((($order["details"]["ST"]->order_shipment!=''?$order["details"]["ST"]->order_shipment:$order["details"]["BT"]->order_shipment)), 2, ",", "") . '">';
+            $html .= '<input type="hidden" name="itemShippingCost1" value="' . number_format(round(($order["details"]["ST"]->order_shipment!=''?$order["details"]["ST"]->order_shipment:$order["details"]["BT"]->order_shipment),2),2,'.','') . '">';
         } else {
-            $html .= '<input type="hidden" name="item_frete_1" value="0">';
+            $html .= '<input type="hidden" name="itemShippingCost1" value="0">';
         }
 
         // desconto do pedido
@@ -211,7 +235,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
 
         $order_discount = (-1)*abs($order_discount);
         if (!empty($order_discount)) {
-           $html .= '<input type="hidden" name="extraAmount" value="'.number_format($order_discount, 2, ",", "").'" />'; 
+           $html .= '<input type="hidden" name="extraAmount" value="'.number_format($order_discount, 2, ".", "").'" />'; 
         }
 
         $order_subtotal = $order['details']['BT']->order_subtotal;
@@ -224,11 +248,11 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
             $valor_item = $valor_produto;           
 
             $product_attribute = strip_tags(VirtueMartModelCustomfields::CustomsFieldOrderDisplay($p,'FE'));
-            $html .='<input type="hidden" name="item_id_' . $i . '" value="' . $p->virtuemart_order_item_id . '">
-                <input type="hidden" name="item_descr_' . $i . '" value="' . $p->order_item_name . '">
-                <input type="hidden" name="item_quant_' . $i . '" value="' . $p->product_quantity . '">
-                <input type="hidden" name="item_valor_' . $i . '" value="' . number_format($p->product_final_price, 2, ",", "") .'">
-                <input type="hidden" name="item_peso_' . $i . '" value="' . ShopFunctions::convertWeigthUnit($p->product_weight, $p->product_weight_uom, "GR") . '">';
+            $html .='<input type="hidden" name="itemId' . $i . '" value="' . $p->virtuemart_order_item_id . '">
+                <input type="hidden" name="itemDescription' . $i . '" value="' . $p->order_item_name . '">
+                <input type="hidden" name="itemQuantity' . $i . '" value="' . $p->product_quantity . '">
+                <input type="hidden" name="itemAmount' . $i . '" value="' . number_format(round($p->product_final_price,2),2,'.','') .'">
+                <input type="hidden" name="itemWeight' . $i . '" value="' . ShopFunctions::convertWeigthUnit($p->product_weight, $p->product_weight_uom, "GR") . '">';
         }
 
         $url                  = JURI::root();
@@ -287,7 +311,7 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
     function setCartPrices (VirtueMartCart $cart, &$cart_prices, $method) {
 
         if ($method->modo_calculo_desconto == '2') {
-            return parent::setCartPrices($cart, &$cart_prices, $method);
+            return parent::setCartPrices($cart, $cart_prices, $method);
         } else {
 
             if (!class_exists ('calculationHelper')) {
@@ -669,8 +693,30 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
         
         if (!isset($pagseguro_data['TransacaoID'])) {
             return;
-        }       
-        $order_number = $pagseguro_data['Referencia'];
+        }     
+
+        $this->logInfo('pagseguro_data ' . implode('   ', $pagseguro_data), 'message');
+
+        // dados do pagseguro
+        $email_cobranca = $method->email_cobranca;
+        $token          = $method->token;
+
+        $credentials = new PagSeguroAccountCredentials($merchant_email, $pagseguro_token);
+
+        $type = $pagseguro_data['notificationType'];
+        $code = $pagseguro_data['notificationCode'];
+
+        if ($type === 'transaction') {
+            $transaction = PagSeguroNotificationService::checkTransaction($credentials, $code);
+        } else {
+            return false;
+        }
+
+        // dados do pedido
+        $referencia = $transaction->getReference();
+        $PSdataRef = explode('|||', $referencia);
+        $order_number = $PSdataRef[0];
+        $return_context = $PSdataRef[1];
         $virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_number);
 
         if (!$virtuemart_order_id) {
@@ -678,73 +724,57 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
         }
         $vendorId = 0;
         $payment = $this->getDataByOrderId($virtuemart_order_id);
-        if($payment->payment_name == '') {
-            return false;
-        }
-        $method = $this->getVmPluginMethod($payment->virtuemart_paymentmethod_id);
-        if (!$this->selectedThisElement($method->payment_element)) {
-            return false;
-        }
-        //$this->_debug = $method->debug;
         if (!$payment) {
             $this->logInfo('getDataByOrderId payment not found: exit ', 'ERROR');
             return null;
         }
-        $this->logInfo('pagseguro_data ' . implode('   ', $pagseguro_data), 'message');
 
-        // get all know columns of the table
-        $db = JFactory::getDBO();
-        $query = 'SHOW COLUMNS FROM `' . $this->_tablename . '` ';
-        $db->setQuery($query);
-        $columns = $db->loadResultArray(0);
-        $post_msg = '';
-        foreach ($pagseguro_data as $key => $value) {
-            $post_msg .= $key . "=" . $value . "<br />";
-            $table_key = 'pagseguro_response_' . $key;
-            if (in_array($table_key, $columns)) {
-            $response_fields[$table_key] = $value;
-            }
+        $method = $this->getVmPluginMethod($payment->virtuemart_paymentmethod_id);
+        if (!$this->selectedThisElement($method->payment_element)) {
+            return false;
         }
 
+        $this->_debug = $method->debug;
+        $this->logInfo('Notification: pagseguro_data ' . implode(' | ', $pagseguro_data), 'message');
 
-        $response_fields['payment_name'] = $payment->payment_name;
-        $response_fields['order_number'] = $order_number;
-        $response_fields['virtuemart_order_id'] = $virtuemart_order_id;
+        $this->_storePagseguroInternalData($method, $transaction, $virtuemart_order_id);
 
-      
-            /*
-             * https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_IPNandPDTVariables
-             * The status of the payment:
-             * Canceled_Reversal: A reversal has been canceled. For example, you won a dispute with the customer, and the funds for the transaction that was reversed have been returned to you.
-             * Completed: The payment has been completed, and the funds have been added successfully to your account balance.
-             * Created: A German ELV payment is made using Express Checkout.
-             * Denied: You denied the payment. This happens only if the payment was previously pending because of possible reasons described for the pending_reason variable or the Fraud_Management_Filters_x variable.
-             * Expired: This authorization has expired and cannot be captured.
-             * Failed: The payment has failed. This happens only if the payment was made from your customer�s bank account.
-             * Pending: The payment is pending. See pending_reason for more information.
-             * Refunded: You refunded the payment.
-             * Reversed: A payment was reversed due to a chargeback or other type of reversal. The funds have been removed from your account balance and returned to the buyer. The reason for the reversal is specified in the ReasonCode element.
-             * Processed: A payment has been accepted.
-             * Voided: This authorization has been voided.
-             *
-             */
-            if (empty($pagseguro_data['cod_status']) || ($pagseguro_data['cod_status'] != '0' && $pagseguro_data['cod_status'] != '1' && $pagseguro_data['cod_status'] != '2')) {
-            //return false;
-            }
-            
-            $pagseguro_status = $pagseguro_data['StatusTransacao'];
-            switch($pagseguro_status){
-                case 'Completo':    $new_status = $method->status_completo; break;
-                case 'Aprovado':    $new_status = $method->status_aprovado; break;
-                case 'Em Análise':  $new_status = $method->status_analise; break;
-                case 'Cancelado':   $new_status = $method->status_cancelado; break;
-                case 'Paga':        $new_status = $method->status_paga; break;
-                case 'Disponivel':  $new_status = $method->status_disponivel; break;
-                case 'Devolvida':   $new_status = $method->status_devolvida; break;
-                case 'Aguardando Pagto':
-                default: $new_status = $method->status_aguardando; break;
-            }
+        $ps_status = $transaction->getStatus();
+        $payment_status = $ps_status->getValue();
 
+        $order = array();
+        $new_status = '';
+        if ($payment_status == 1 || $payment_status == 2) {
+            $new_status = $method->status_aguardando;
+            $order['order_status'] = $new_status;
+            $order['customer_notified'] = 0;
+            $order['comments'] = 'O status do seu pedido '.$order_number.' no Pagseguro foi atualizado: Aguardando pagamento';
+        } elseif ($payment_status == 3) {
+            $new_status = $method->status_aprovado;
+            $order['order_status'] = $new_status;
+            $order['customer_notified'] =1;
+            $order['comments'] = 'O status do seu pedido '.$order_number.' no Pagseguro foi atualizado: Pago';
+        } elseif ($payment_status == 4) {
+            $new_status = $method->status_disponivel;
+            $order['order_status'] = $new_status;
+            $order['customer_notified'] =0;
+            $order['comments'] = 'O status do seu pedido '.$order_number.' no Pagseguro foi atualizado: Completo';
+        } elseif ($payment_status == 5) {
+            $new_status = $method->status_analise;
+            $order['order_status'] = $new_status;
+            $order['customer_notified'] =0;
+            $order['comments'] = 'O status do seu pedido '.$order_number.' no Pagseguro foi atualizado: Disputa';
+        } elseif ($payment_status == 6) {
+            $new_status = $method->status_devolvida;
+            $order['order_status'] = $new_status;
+            $order['customer_notified'] =0;
+            $order['comments'] = 'O status do seu pedido '.$order_number.' no Pagseguro foi atualizado: Devolvida';
+        } elseif ($payment_status == 7) {
+            $new_status = $method->status_cancelado;
+            $order['order_status'] = $new_status;
+            $order['customer_notified'] =1;
+            $order['comments'] = 'O status do seu pedido '.$order_number.' no Pagseguro foi atualizado: Cancelada';
+        }
 
         $this->logInfo('plgVmOnPaymentNotification return new_status:' . $new_status, 'message');
 
@@ -755,25 +785,19 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
             $modelOrder = new VirtueMartModelOrders();
             $orderitems = $modelOrder->getOrder($virtuemart_order_id);
             $nb_history = count($orderitems['history']);
-            $order['order_status'] = $new_status;
-            $order['virtuemart_order_id'] = $virtuemart_order_id;
-            $order['comments'] = 'O status do seu pedido '.$order_number.' no Pagseguro foi atualizado: '.utf8_encode($pagseguro_data['StatusTransacao']);
-            if ($nb_history == 1) {
-                $order['comments'] .= "<br />" . JText::sprintf('VMPAYMENT_PAYPAL_EMAIL_SENT');
-                $order['customer_notified'] = 0;
-            } else {
-                $order['customer_notified'] = 1;
-            }
+
             $modelOrder->updateStatusForOneOrder($virtuemart_order_id, $order, true);
             if ($nb_history == 1) {
-            if (!class_exists('shopFunctionsF'))
-                require(JPATH_VM_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
-            shopFunctionsF::sentOrderConfirmedEmail($orderitems);
-            $this->logInfo('Notification, sentOrderConfirmedEmail ' . $order_number. ' '. $new_status, 'message');
+                if (!class_exists('shopFunctionsF'))
+                    require(JPATH_VM_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
+                shopFunctionsF::sentOrderConfirmedEmail($orderitems);
+                $this->logInfo('Notification, sentOrderConfirmedEmail ' . $order_number. ' '. $new_status, 'message');
             }
         }
+
         //// remove vmcart
         $this->emptyCart($return_context);
+
     }
 
       /**

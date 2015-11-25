@@ -32,7 +32,7 @@ Tutorial
 
 Neste link: https://pagseguro.uol.com.br/preferencias/integracoes.jhtml, deverá ser inserido no campo de Notificação da transação, a seguinte url:
 
-site.com.br//index.php?option=com_virtuemart&view=pluginresponse&task=notification
+site.com.br//index.php?option=com_virtuemart&view=pluginresponse&task=pluginnotification
 
 -- Status de pedidos
 * Completo: status transação Enviada

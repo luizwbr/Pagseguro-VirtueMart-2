@@ -690,10 +690,6 @@ class plgVmPaymentPagseguro extends vmPSPlugin {
         if (!class_exists('VirtueMartModelOrders'))
             require( JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'orders.php' );
         $pagseguro_data = $_REQUEST;
-        
-        if (!isset($pagseguro_data['TransacaoID'])) {
-            return;
-        }     
 
         $this->logInfo('pagseguro_data ' . implode('   ', $pagseguro_data), 'message');
 
